@@ -18,6 +18,10 @@ public class Router {
 
                 .route("ORDER-SERVICE", r -> r.path("/api/order/**")
                         .uri("lb://order-service"))
+
+                .route("AUTH-SERVICE", r -> r.path("/api/auth/**")
+                        .uri("lb://auth-service"))
+
                 .build();
     }
 
