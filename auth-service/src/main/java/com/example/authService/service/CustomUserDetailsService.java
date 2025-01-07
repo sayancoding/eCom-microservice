@@ -5,6 +5,9 @@ import com.example.authService.entity.CustomUserDetails;
 import com.example.authService.entity.User;
 import com.example.authService.exception.NoUserException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -21,4 +24,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userDao.findByEmailId(username).orElseThrow(() -> new NoUserException("No user found Username with " + username));
         return new CustomUserDetails(user);
     }
+
+
 }

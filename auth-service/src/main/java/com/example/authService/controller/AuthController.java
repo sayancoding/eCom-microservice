@@ -2,10 +2,8 @@ package com.example.authService.controller;
 
 import com.example.authService.dto.LoginDto;
 import com.example.authService.dto.RegisterDto;
-import com.example.authService.entity.User;
 import com.example.authService.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,6 +12,7 @@ public class AuthController {
 
     @Autowired
     private UserService userService;
+
 
     @GetMapping
     public String welcome(){
@@ -26,12 +25,7 @@ public class AuthController {
     }
     @PostMapping("/login")
     public String login(@RequestBody LoginDto loginDto){
-        User user = userService.findByEmailId(loginDto.getUsername());
-        if(new BCryptPasswordEncoder().matches(loginDto.getPassword(), user.getPassword())){
-            return "login successful";
-        }else{
-            return "failed";
-        }
+        return userService.verifyUser(loginDto);
     }
 
 }
