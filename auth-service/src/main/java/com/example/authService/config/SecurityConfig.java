@@ -1,3 +1,4 @@
+
 package com.example.authService.config;
 
 import com.example.authService.service.CustomUserDetailsService;
@@ -32,8 +33,8 @@ public class SecurityConfig {
                 .csrf(csrf->csrf.disable())
                 .authorizeHttpRequests(
                         req-> req.requestMatchers(getAllPermitUris()).permitAll()
-                                    .anyRequest().authenticated()
-                        )
+                                .anyRequest().authenticated()
+                )
                 .httpBasic(Customizer.withDefaults())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(Customizer.withDefaults());
@@ -62,7 +63,8 @@ public class SecurityConfig {
     private String[] getAllPermitUris(){
         return new String[]{
                 "/api/auth/register",
-                "/api/auth/login"
+                "/api/auth/login",
+                "api/auth/validate"
         };
     }
 

@@ -46,5 +46,8 @@ public class UserService {
         }
         return "Unable to login!!";
     }
+    public boolean validateToken(String token){
+        return jwtService.isTokenValid(token);
+    }
 
 }

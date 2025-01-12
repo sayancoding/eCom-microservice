@@ -1,10 +1,12 @@
 package com.example.authService.service;
 
 import com.example.authService.dto.LoginDto;
+import com.example.authService.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +18,7 @@ import java.util.function.Function;
 @Service
 public class JwtService {
     private final String SECRET_KEY = "RqxPOuVfHoBA8Uq40MhJvfY6qEHOOWWvg6N9W9vt23s=";
-    private final long VALID_DURATION = 60 * 10 * 1000;
+    private final long VALID_DURATION = 60 * 5 * 1000;
 
     public String generateToken(LoginDto loginDto){
         HashMap<String, Object> claims = new HashMap<>();
@@ -47,6 +49,14 @@ public class JwtService {
         String usernameFromClaim = extractUsername(jwtToken);
         return (expiaryDate.after(new Date(System.currentTimeMillis()))
                 && usernameFromClaim.equals(userDetails.getUsername()));
+    }
+
+    public boolean isTokenValid(String token){
+        if (token.isBlank() || token.isEmpty()) return false;
+        Date expiaryDate = extractClaims(token,Claims::getExpiration);
+        if(expiaryDate == null) return false;
+
+        return expiaryDate.after(new Date(System.currentTimeMillis()));
     }
 
     private <T> T  extractClaims(String token, Function<Claims,T> claimResolver){

@@ -4,24 +4,37 @@ server:
 spring:
   application:
     name: api-gateway
-#  cloud:
-#    gateway:
+  cloud:
+    gateway:
 #      routes:
 #        - id: PRODUCT-SERVICE
 #          uri: lb://product-service
 #          predicates:
 #            - Path=/api/product/**
+#          filters:
+#            - AuthenticationFilter
 #
 #        - id: ORDER-SERVICE
 #          uri: lb://order-service
 #          predicates:
 #            - Path=/api/order/**
+#          filters:
+#            - AuthenticationFilter
 #
 #        - id: INVENTORY-SERVICE
 #          uri: lb://inventory-service
 #          predicates:
 #            - Path=/api/inventory/**
+#          filters:
+#            - AuthenticationFilter
+#
+#        - id: AUTH-SERVICE
+#          uri: lb://auth-service
+#          predicates:
+#            - Path=/api/auth/**
 
 eureka:
   serviceUrl:
     defaultZone: http://localhost:8761/eureka
+    instance:
+      prefer-ip-address: true
