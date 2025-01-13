@@ -2,10 +2,11 @@ package com.example.authService.service;
 
 import com.example.authService.dto.LoginDto;
 import com.example.authService.entity.User;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
+import com.example.authService.exception.InvalidJwtException;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -45,18 +46,28 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String jwtToken, UserDetails userDetails) {
-        Date expiaryDate = extractClaims(jwtToken,Claims::getExpiration);
-        String usernameFromClaim = extractUsername(jwtToken);
-        return (expiaryDate.after(new Date(System.currentTimeMillis()))
-                && usernameFromClaim.equals(userDetails.getUsername()));
+        try{
+            Date expiaryDate = extractClaims(jwtToken,Claims::getExpiration);
+            String usernameFromClaim = extractUsername(jwtToken);
+            return (expiaryDate.after(new Date(System.currentTimeMillis()))
+                    && usernameFromClaim.equals(userDetails.getUsername()));
+        }
+        catch (SignatureException | MalformedJwtException | ExpiredJwtException | UnsupportedJwtException | IllegalArgumentException e) {
+            throw new InvalidJwtException("Invalid Token",e);
+        }
     }
 
     public boolean isTokenValid(String token){
         if (token.isBlank() || token.isEmpty()) return false;
-        Date expiaryDate = extractClaims(token,Claims::getExpiration);
-        if(expiaryDate == null) return false;
+        try{
+            Date expiaryDate = extractClaims(token,Claims::getExpiration);
+            if(expiaryDate == null) return false;
 
-        return expiaryDate.after(new Date(System.currentTimeMillis()));
+            return expiaryDate.after(new Date(System.currentTimeMillis()));
+        }
+        catch (SignatureException | MalformedJwtException | ExpiredJwtException | UnsupportedJwtException | IllegalArgumentException e) {
+            throw new InvalidJwtException("Invalid Token",e);
+        }
     }
 
     private <T> T  extractClaims(String token, Function<Claims,T> claimResolver){
