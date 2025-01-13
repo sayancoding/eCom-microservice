@@ -1,8 +1,12 @@
 package com.example.client;
 
+import com.example.dto.ErrorResponse;
 import com.example.dto.TokenValidationResponse;
+import com.example.exception.UnauthorizedAccessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -19,7 +23,12 @@ public class AuthClient {
     public Mono<TokenValidationResponse> validateToken(String token){
         WebClient webClient= getWebClient();
         return webClient.get().uri("/validate?token="+token)
-                .retrieve().bodyToMono(TokenValidationResponse.class);
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        res -> res.bodyToMono(ErrorResponse.class)
+                                .flatMap(response -> Mono.error(new UnauthorizedAccessException(response.errorMessage(),new Throwable(response.cause()))))
+                )
+                .bodyToMono(TokenValidationResponse.class);
     }
     private WebClient getWebClient(){
         return webclienBuilder

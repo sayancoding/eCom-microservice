@@ -1,6 +1,8 @@
 package com.example.filter;
 
 import com.example.client.AuthClient;
+import com.example.dto.TokenValidationResponse;
+import com.example.exception.UnauthorizedAccessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -26,10 +28,12 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
             if (config.isEnabled()) {
                 String token = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
                 if (token == null || !token.startsWith("Bearer ")) {
-                    return Mono.just(exchange).then(chain.filter(exchange).then(Mono.defer(() -> {
-                        exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                        return exchange.getResponse().setComplete();
-                    })));
+//                    return Mono.just(exchange).then(chain.filter(exchange).then(Mono.defer(() -> {
+//                        exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+//                        return exchange.getResponse().setComplete();
+//                    })));
+
+                    return Mono.error(new UnauthorizedAccessException("Authentication required."));
                 }
                 else {
                     token = token.substring(7);
@@ -39,8 +43,10 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                                 if (isValid.status()) {
                                     return chain.filter(exchange);
                                 } else {
-                                    exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                                    return exchange.getResponse().setComplete();
+                                    throw new UnauthorizedAccessException("Authentication Failed!");
+//                                    return Mono.error(new UnauthorizedAccessException("Authentication Failed!"));
+//                                    exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+//                                    return exchange.getResponse().setComplete();
                                 }
                             });
                 }
