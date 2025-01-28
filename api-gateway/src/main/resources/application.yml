@@ -4,15 +4,19 @@ server:
 spring:
   application:
     name: api-gateway
-  cloud:
-    gateway:
+#  cloud:
+#    gateway:
+#
 #      routes:
 #        - id: PRODUCT-SERVICE
 #          uri: lb://product-service
 #          predicates:
 #            - Path=/api/product/**
 #          filters:
-#            - AuthenticationFilter
+#            - name: CircuitBreaker
+#              args:
+#                name: serviceDown
+#                fallbackuri: forward:/fallback
 #
 #        - id: ORDER-SERVICE
 #          uri: lb://order-service
@@ -36,5 +40,52 @@ spring:
 eureka:
   serviceUrl:
     defaultZone: http://localhost:8761/eureka
-    instance:
-      prefer-ip-address: true
+
+## actuator
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+
+#Resilinece4j Properties
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        minimumNumberOfCalls: 5
+    instances:
+      authServiceDown:
+        baseConfig: default
+      productServiceDown:
+        baseConfig: default
+      inventoryServiceDown:
+        baseConfig: default
+      orderServiceDown:
+        baseConfig: default
+
+#Resilience4J time-limiter Properties
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 5s
+#Resilience4J Retry Properties
+  retry:
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration: 2s
+

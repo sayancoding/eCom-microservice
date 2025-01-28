@@ -1,4 +1,4 @@
-package com.example.filter;
+package com.example.routes;
 
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
@@ -13,7 +13,10 @@ public class RouteValidator {
             "/api/auth/register",
             "/api/auth/login",
             "/api/auth/validate?token=",
-            "/eureka"
+            "/eureka",
+            "/actuator/health",
+            "/actuator/health/**",
+            "/fallback"
     );
 
     public Predicate<ServerHttpRequest> isSecured =
